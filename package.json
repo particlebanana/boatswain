@@ -1,0 +1,20 @@
+{
+  "name": "cat-o-nine",
+  "version": "0.1.0",
+  "description": "A bot.",
+  "keywords": [
+    "sails",
+    "bot"
+  ],
+  "dependencies": {
+    "lodash": "^3.9.3"
+  },
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mikermcneil/cat-o-nine.git"
+  },
+  "homepage": "https://github.com/mikermcneil/cat-o-nine",
+  "author": "Mike McNeil",
+  "license": "MIT"
+}
