@@ -18,7 +18,7 @@ var COMMENT_TEMPLATE = _.template(
   'Thanks for posting, @<%= user.login %>.  I\'m an experimental issue cleanup bot-- nice to meet you!'+
   '\n'+
   '\n'+
-  'It has been a couple of months since there have been any updates or new comments on this page.  If this issue has been resolved, please feel free to disregard the rest of this message.'+
+  'It has been a couple of months since there have been any updates or new comments on this page.  If this issue has been resolved, please feel free to disregard the rest of this message.  '+
   'On the other hand, if you are still waiting on a patch, please:\n\n'+
   '  + review our [contribution guide](https://github.com/balderdashy/sails/blob/master/CONTRIBUTING.md) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
   '\n'+
