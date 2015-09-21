@@ -15,6 +15,9 @@
     "machine-as-script": "^2.0.1",
     "machinepack-github": "^4.0.0"
   },
+  "scripts":{
+    "start": "node bin/boatswain.js"
+  },
   "main": "index.js",
   "repository": {
     "type": "git",
