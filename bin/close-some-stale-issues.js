@@ -44,17 +44,17 @@ require('machine-as-script')({
         'Thanks for posting, @<%- issue.user.login %>.  I\'m an experimental issue cleanup bot-- nice to meet you!'+
         '\n'+
         '\n'+
-        'It has been a couple of months since there have been any updates or new comments on this page.  If this issue has been resolved, please feel free to disregard the rest of this message.  '+
+        'It has been <%-shelfLifeInDays%> day<%-shelfLifeInDays>1?"s":""%> since there have been any updates or new comments on this page.  If this issue has been resolved, feel free to disregard the rest of this message.  '+
         'On the other hand, if you are still waiting on a patch, please:\n\n'+
         '  + review our [contribution guide](https://github.com/<%-repo.owner%>/<%-repo.repoName%>/blob/master/CONTRIBUTING.md) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
         '\n'+
-        '  + create a new issue with the latest information, including updated version details with error messages, failing tests, etc.  Please include a link back to this page for reference.'+
+        '  + create a new issue with the latest information, including updated version details with error messages, failing tests, etc.  Please include a link back to [this page](<%-issue.html_url%>) for reference.'+
         '\n'+
         '  + add a comment to _this_ issue with a link to the new issue (for people arriving from search engines)'+
         '\n\n'+
-        'Thanks so much for your help!\n\n'+
-        '<3\n'+
-        '<%- repo.repoName %>-bot'
+        'Thanks so much for your help!'
+        // 'Thanks so much for your help!\n\n'+
+        // '-<%- _.startCase(repo.repoName) %> bot'
       },
 
       shelfLifeInDays: {
@@ -105,11 +105,11 @@ require('machine-as-script')({
         }).exec({
           error: function (err) {
             // If an error was encountered, keep going, but log it to the console.
-            console.error('ERROR: Failed to search issues in repo ("'+repo.repoName+'")\n',err);
+            console.error('ERROR: Failed to search issues in "'+repo.owner+'/'+repo.repoName+'":\n',err);
             return next();
           },
           success: function (oldIssues){
-            console.log('Located at least %d old, open issues...',oldIssues.length);
+            console.log('Located at least %d old, open issues in "'+repo.owner+'/'+repo.repoName+'"...',oldIssues.length);
 
             // Only use the first `inputs.maxNumIssuesToClosePerRepo` issues
             // (chop off any extras from the end of the array)
@@ -119,20 +119,31 @@ require('machine-as-script')({
             // For each old issue...
             async.each(oldIssues, function (oldIssue, next){
 
+              // Render the comment template.
+              var comment;
+              try {
+                comment = _.template(inputs.commentTemplate)({
+                  repo: repo,
+                  issue: oldIssue,
+                  shelfLifeInDays: inputs.shelfLifeInDays
+                });
+              }
+              catch (e) {
+                console.error('ERROR: Failed to comment+close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'" because the comment template could not be rendered:\n',err);
+                return next();
+              }
+
               // Post a comment on the issue explaining what's happening.
               Github.commentOnIssue({
                 owner: repo.owner,
                 repo: repo.repoName,
                 issueNumber: oldIssue.number,
-                comment: _.template(inputs.commentTemplate)({
-                  repo: repo,
-                  issue: oldIssue
-                }),
+                comment: comment,
                 credentials: inputs.credentials,
               }).exec({
                 error: function (err){
                   // If an error was encountered, keep going, but log it to the console.
-                  console.error('ERROR: Failed to comment on issue #'+oldIssue.number+':\n',err);
+                  console.error('ERROR: Failed to comment+close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'":\n',err);
                   return next();
                 },
                 success: function (newCommentId){
@@ -146,7 +157,7 @@ require('machine-as-script')({
                   }).exec({
                     error: function (err){
                       // If an error was encountered, keep going, but log it to the console.
-                      console.error('ERROR: Failed to close issue #'+oldIssue.number+':\n',err);
+                      console.error('ERROR: Was able to comment, but failed to close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'":\n',err);
                       return next();
                     },
                     success: function (){
