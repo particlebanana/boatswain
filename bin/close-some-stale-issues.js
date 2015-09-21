@@ -1,26 +1,86 @@
-/**
- * Module dependencies
- */
+#!/usr/bin/env node
 
-var _ = require('lodash');
-var async = require('async');
-var Github = require('machinepack-github');
+require('machine-as-script')({
+
+  machine: {
 
 
+    friendlyName: 'Close some stale issues',
 
-// CONSTANTS
-var MAX_NUM_ISSUES_TO_CLOSE = 1;
-var REPOS = [{
-  owner: 'balderdashy',
-  repoName: 'sails'
-}];
-var COMMENT_TEMPLATE = _.template(
-  'Thanks for posting, @<%= user.login %>.  I\'m an experimental issue cleanup bot-- nice to meet you!'+
+
+    description: '',
+
+
+    inputs: {
+
+
+    },
+
+
+    fn: function (inputs, exits) {
+      var _ = require('lodash');
+      var async = require('async');
+      var Github = require('machinepack-github');
+
+      return exits.success();
+    }
+
+
+  },
+
+  envVarNamespace: 'add_numbers__'
+
+}).exec({
+  success: function (sum){
+
+
+    console.log('Got result:', sum);
+  }
+});
+
+
+return;
+
+
+// The maximum number of issues to close in any one repo as a result
+// of running this script one time. Currently, this must be <= 100
+// (because the page size of issue search results from the GitHub API is 100,
+//  and we don't currently handle multiple pages of results in this module)
+//
+// Defaults to 3.
+var MAX_NUM_ISSUES_TO_CLOSE_PER_REPO = rttc.parseHuman(
+  process.env.MAX_NUM_ISSUES_TO_CLOSE_PER_REPO || '3',
+  'number'
+);
+
+
+
+// A set of repos that will be processed.
+var REPOS = rttc.parseHuman(
+  process.env.repos || [],
+  [
+    {
+      owner: 'string',
+      repoName: 'string'
+    }
+  ]
+);
+
+
+// The string template for the comment that will be posted by this bot
+// as the issue is closed.  It supports lodash template notation, and is
+// provided with the raw issue dictionary from the GitHub API as `issue` on
+// its scope, as well as repo info provided as `repo`.
+//
+// By default, this is a reasonable message.
+var COMMENT_TEMPLATE = rttc.validate('string',
+  process.env.COMMENT_TEMPLATE ||
+  'Thanks for posting, @<%- issue.user.login %>.  I\'m an experimental issue cleanup bot-- nice to meet you!'+
   '\n'+
   '\n'+
   'It has been a couple of months since there have been any updates or new comments on this page.  If this issue has been resolved, please feel free to disregard the rest of this message.  '+
   'On the other hand, if you are still waiting on a patch, please:\n\n'+
-  '  + review our [contribution guide](https://github.com/balderdashy/sails/blob/master/CONTRIBUTING.md) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
+  '  + review our [contribution guide](https://github.com/<%-repo.owner%>/<%-repo.repoName%>/blob/master/CONTRIBUTING.md) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
   '\n'+
   '  + create a new issue with the latest information, including updated version details with error messages, failing tests, etc.  Please include a link back to this page for reference.'+
   '\n'+
@@ -28,14 +88,20 @@ var COMMENT_TEMPLATE = _.template(
   '\n\n'+
   'Thanks so much for your help!\n\n'+
   '<3\n'+
-  'Sails.js proto-bot'
+  '<%- repo.repoName %>-bot'
 );
-
-var CREDENTIALS = {
-  accessToken: process.env.ACCESS_TOKEN
-};
+// Note that we convert it into a precompiled function using `_.template()`.
+COMMENT_TEMPLATE = _.template(COMMENT_TEMPLATE);
 
 
+// The credentials that the bot will use to make authenticated requests
+// to the GitHub API.  Either `accessToken`, `clientId`+`clientSecret`,
+// or `username`+`password` keys may be provided.
+// (required)
+var CREDENTIALS = rttc.parseHuman(CREDENTIALS, {});
+
+console.log(CREDENTIALS);
+return;
 
 
 
@@ -48,7 +114,7 @@ twoMonthsAgo = (new Date()).getTime()+ 100000000;
 // For each repo...
 async.each(REPOS, function (repo, next){
 
-  // Fetch up to `MAX_NUM_ISSUES_TO_CLOSE` of the oldest open issues in the repo.
+  // Fetch up to `MAX_NUM_ISSUES_TO_CLOSE_PER_REPO` of the oldest open issues in the repo.
   Github.searchIssues({
     owner: repo.owner,
     repo: repo.repoName,
@@ -64,9 +130,9 @@ async.each(REPOS, function (repo, next){
     success: function (oldIssues){
       console.log('Located at least %d old, open issues...',oldIssues.length);
 
-      // Only use the first `MAX_NUM_ISSUES_TO_CLOSE` issues
+      // Only use the first `MAX_NUM_ISSUES_TO_CLOSE_PER_REPO` issues
       // (chop off any extras from the end of the array)
-      oldIssues = oldIssues.slice(0, MAX_NUM_ISSUES_TO_CLOSE);
+      oldIssues = oldIssues.slice(0, MAX_NUM_ISSUES_TO_CLOSE_PER_REPO);
 
       // For each old issue...
       async.each(oldIssues, function (oldIssue, next){
@@ -76,7 +142,10 @@ async.each(REPOS, function (repo, next){
           owner: repo.owner,
           repo: repo.repoName,
           issueNumber: oldIssue.number,
-          comment: COMMENT_TEMPLATE(oldIssue),
+          comment: COMMENT_TEMPLATE({
+            repo: repo,
+            issue: oldIssue
+          }),
           credentials: CREDENTIALS,
         }).exec({
           error: function (err){

@@ -1,22 +1,26 @@
 {
-  "name": "cat-o-nine",
+  "name": "boatswain",
   "version": "0.1.0",
-  "description": "A bot.",
+  "description": "A configurable bot for open-source projects.",
   "keywords": [
-    "sails",
-    "bot"
+    "bot",
+    "github-issues-bot",
+    "github-bot",
+    "sails-bot",
+    "sails"
   ],
   "dependencies": {
     "async": "^1.4.2",
     "lodash": "^3.10.1",
+    "machine-as-script": "^2.0.1",
     "machinepack-github": "^4.0.0"
   },
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/mikermcneil/cat-o-nine.git"
+    "url": "git://github.com/mikermcneil/boatswain.git"
   },
-  "homepage": "https://github.com/mikermcneil/cat-o-nine",
+  "homepage": "https://github.com/mikermcneil/boatswain",
   "author": "Mike McNeil",
   "license": "MIT"
 }
