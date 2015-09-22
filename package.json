@@ -13,9 +13,9 @@
     "async": "^1.4.2",
     "lodash": "^3.10.1",
     "machine-as-script": "^2.0.1",
-    "machinepack-github": "^4.0.0"
+    "machinepack-github": "^4.0.2"
   },
-  "scripts":{
+  "scripts": {
     "start": "node bin/boatswain.js"
   },
   "main": "index.js",

@@ -41,20 +41,24 @@ require('machine-as-script')({
         extendedDescription: 'This supports lodash template notation with a handful of locals.  `issue` is the raw issue dictionary from the GitHub API and `repo` is one of the dictionaries provided to this script (i.e. with `repo.repoName` and `repo.owner`)',
         example: 'A comment written in _GitHub-flavored markdown syntax_ and optionally taking advantage of <%- lodash.template.notation %>.',
         defaultsTo:
-        'Thanks for posting, @<%- issue.user.login %>.  I\'m an experimental issue cleanup bot-- nice to meet you!'+
+        'Thanks for posting, @<%- issue.user.login %>.  I\'m a repo bot-- nice to meet you!'+
         '\n'+
         '\n'+
         'It has been <%-shelfLifeInDays%> day<%-shelfLifeInDays>1?"s":""%> since there have been any updates or new comments on this page.  If this issue has been resolved, feel free to disregard the rest of this message.  '+
         'On the other hand, if you are still waiting on a patch, please:\n\n'+
-        '  + review our [contribution guide](https://github.com/<%-repo.owner%>/<%-repo.repoName%>/blob/master/CONTRIBUTING.md) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
+        '  + review our [contribution guide](<%-contributionGuideUrl%>) to make sure this submission meets our criteria (only _verified bugs_ with documented features, please;  no questions, commentary, or bug reports about undocumented features or unofficial plugins)'+
         '\n'+
-        '  + create a new issue with the latest information, including updated version details with error messages, failing tests, etc.  Please include a link back to [this page](<%-issue.html_url%>) for reference.'+
-        '\n'+
-        '  + add a comment to _this_ issue with a link to the new issue (for people arriving from search engines)'+
+        '  + create a new issue with the latest information, including updated version details with error messages, failing tests, and a link back to [the original issue](<%-issue.html_url%>).  This allows GitHub to automatically create a back-reference for future visitors arriving from search engines.'+
         '\n\n'+
         'Thanks so much for your help!'
         // 'Thanks so much for your help!\n\n'+
         // '-<%- _.startCase(repo.repoName) %> bot'
+      },
+
+      contributionGuideUrl: {
+        description: 'The URL to pass in as a local variable for use via lodash template syntax in `commentTemplate`.',
+        extendedDescription: 'If left unspecified, the URL will be built to automatically point at `CONTRIBUTING.md` in the top-level of the repo where the issue was posted.',
+        example: 'https://github.com/balderdashy/sails/blob/master/CONTRIBUTING.md'
       },
 
       shelfLifeInDays: {
@@ -125,7 +129,8 @@ require('machine-as-script')({
                 comment = _.template(inputs.commentTemplate)({
                   repo: repo,
                   issue: oldIssue,
-                  shelfLifeInDays: inputs.shelfLifeInDays
+                  shelfLifeInDays: inputs.shelfLifeInDays,
+                  contributionGuideUrl: inputs.contributionGuideUrl || 'https://github.com/'+repo.owner+'/'+repo.repoName+'/blob/master/CONTRIBUTING.md'
                 });
               }
               catch (e) {
