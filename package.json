@@ -18,6 +18,9 @@
   "scripts": {
     "start": "node bin/boatswain.js"
   },
+  "bin":{
+    "boatswain": "./bin/boatswain.js"
+  },
   "main": "index.js",
   "repository": {
     "type": "git",
