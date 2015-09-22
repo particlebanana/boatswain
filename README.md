@@ -1,7 +1,6 @@
-# Experimental Sails.js bot
+# Boatswain
 
-
-This is a work in progress.
+Daddy's little helper for cleaning up stale issues across multiple GitHub repositories.
 
 
 ## Usage
@@ -19,6 +18,7 @@ And you'll see something like:
 ```
 Located at least 100 old, open issues...
 ...and closing the 3 oldest ones.
+
 Done!
 ```
 
