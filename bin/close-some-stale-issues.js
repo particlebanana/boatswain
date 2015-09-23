@@ -138,12 +138,11 @@ require('machine-as-script')({
                 return next();
               }
 
-              // Post a comment on the issue explaining what's happening.
-              Github.commentOnIssue({
+              // Close the issue.
+              Github.closeIssue({
                 owner: repo.owner,
                 repo: repo.repoName,
                 issueNumber: oldIssue.number,
-                comment: comment,
                 credentials: inputs.credentials,
               }).exec({
                 error: function (err){
@@ -151,26 +150,27 @@ require('machine-as-script')({
                   console.error('ERROR: Failed to comment+close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'":\n',err);
                   return next();
                 },
-                success: function (newCommentId){
+                success: function (){
 
-                  // Now close the issue.
-                  Github.closeIssue({
+                  // Now post a comment on the issue explaining what's happening.
+                  Github.commentOnIssue({
                     owner: repo.owner,
                     repo: repo.repoName,
                     issueNumber: oldIssue.number,
+                    comment: comment,
                     credentials: inputs.credentials,
                   }).exec({
                     error: function (err){
                       // If an error was encountered, keep going, but log it to the console.
-                      console.error('ERROR: Was able to comment, but failed to close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'":\n',err);
+                      console.error('ERROR: Failed to comment+close issue #'+oldIssue.number+' in "'+repo.owner+'/'+repo.repoName+'":\n',err);
                       return next();
                     },
-                    success: function (){
+                    success: function (newCommentId){
                       return next();
                     }
-                  }); // </Github.closeIssue>
+                  });//</Github.commentOnIssue>
                 }
-              });//</Github.commentOnIssue>
+              }); // </Github.closeIssue>
 
             }, function afterwards(err){
               // If a fatal error was encountered processing this repo, bail.
