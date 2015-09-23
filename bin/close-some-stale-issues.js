@@ -64,8 +64,8 @@ require('machine-as-script')({
       shelfLifeInDays: {
         friendlyName: 'Shelf life',
         description: 'How many days of inactivity to allow before an issue is considered stale.',
-        example: 60,
-        defaultsTo: 60
+        example: 30,
+        defaultsTo: 30
       }
 
     },
