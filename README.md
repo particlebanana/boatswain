@@ -23,5 +23,14 @@ Done!
 ```
 
 
+## In production
+
+For the Sails project, we run Boatswain on a free-tier Heroku worker, using Heroku Scheduler to run it automatically once per day.  We configure it using environment variables.
+
+
+## Customization options
+
+See [`bin/close-some-stale-issues.js`](https://github.com/mikermcneil/boatswain/blob/master/bin/close-some-stale-issues.js).
+
 ## License
 MIT
