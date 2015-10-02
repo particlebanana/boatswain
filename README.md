@@ -23,5 +23,9 @@ Done!
 ```
 
 
+## In production
+
+For the Sails project, we run Boatswain on a free-tier Heroku worker, using Heroku Scheduler to run it automatically once per day.
+
 ## License
 MIT
