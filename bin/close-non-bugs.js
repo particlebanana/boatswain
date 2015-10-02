@@ -11,7 +11,7 @@ require('machine-as-script')({
     friendlyName: 'Close by label',
 
 
-    description: 'Close issues which have been labeled as a non-issue (e.g. "question"; customizable) in the specified GitHub repos.',
+    description: 'Close issues which have been labeled as a non-issue in the specified GitHub repos; e.g. "question", "wontfix", "enhancement", "help wanted", "invalid" (customizable).',
 
 
     inputs: {
