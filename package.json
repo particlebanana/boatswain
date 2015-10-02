@@ -13,12 +13,12 @@
     "async": "^1.4.2",
     "lodash": "^3.10.1",
     "machine-as-script": "^2.0.1",
-    "machinepack-github": "^4.0.2"
+    "machinepack-github": "^4.1.0"
   },
   "scripts": {
     "start": "node bin/boatswain.js"
   },
-  "bin":{
+  "bin": {
     "boatswain": "./bin/boatswain.js"
   },
   "main": "index.js",
