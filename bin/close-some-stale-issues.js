@@ -66,6 +66,12 @@ require('machine-as-script')({
         description: 'How many days of inactivity to allow before an issue is considered stale.',
         example: 30,
         defaultsTo: 30
+      },
+
+      labelsToExclude: {
+        description: 'A set of issue labels.',
+        extendedDescription: 'Issues that include _none_ of these labels will be included in search results.',
+        example: ['bug']
       }
 
     },
@@ -106,6 +112,7 @@ require('machine-as-script')({
           state: 'open',
           lastUpdatedBefore: lastUpdatedBefore,
           credentials: inputs.credentials,
+          withNoneOfTheseLabels: inputs.labelsToExclude
         }).exec({
           error: function (err) {
             // If an error was encountered, keep going, but log it to the console.
